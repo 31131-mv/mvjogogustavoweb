@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RE:TIME — Plataforma 2D & Manipulação Temporal</title>
+    <meta name="description" content="Um jogo de plataforma 2D e puzzles com visual pixel art e mecânica de manipulação temporal (rewind). Atravesse 15 setores laboratoriais futuristas!">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <!-- HTML5 Pixel Art Canvas -->
+            <canvas id="game-canvas"></canvas>
+
+            <!-- OVERLAYS & MENUS -->
+
+            <!-- 1. Main Menu -->
+            <div id="main-menu" class="overlay-screen">
+                <div class="menu-content">
+                    <div class="logo-box">
+                        <h1 class="game-title">RE:<span class="cyan-glow">TIME</span></h1>
+                        <p class="game-subtitle">EXPERIMENTO TEMPORAL // PROTOCOLO DE FUGA</p>
+                    </div>
+
+                    <div class="menu-buttons">
+                        <button id="btn-play" class="cyber-btn primary">
+                            <span class="btn-bracket">[</span> INICIAR MISSÃO <span class="btn-bracket">]</span>
+                        </button>
+                        <button id="btn-level-select" class="cyber-btn">
+                            <span class="btn-bracket">[</span> SELEÇÃO DE SETORES <span class="btn-bracket">]</span>
+                        </button>
+                        <button id="btn-how-to-play" class="cyber-btn">
+                            <span class="btn-bracket">[</span> MANUAL DE OPERAÇÃO <span class="btn-bracket">]</span>
+                        </button>
+                        <button id="btn-options" class="cyber-btn">
+                            <span class="btn-bracket">[</span> CONFIGURAÇÕES <span class="btn-bracket">]</span>
+                        </button>
+                    </div>
+
+                    <div class="menu-footer">
+                        <span>ESTADO: SISTEMA TEMPORAL ONLINE</span>
+                        <span>CONTROLES: [A/D] MOVER &bull; [ESPAÇO] PULAR &bull; [R] REWIND</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Level Select Menu -->
+            <div id="level-select-menu" class="overlay-screen hidden">
+                <div class="menu-content wide">
+                    <div class="modal-header">
+                        <h2>SELEÇÃO DE SETORES</h2>
+                        <button class="cyber-btn btn-back-to-menu small">&lt;&lt; VOLTAR AO MENU</button>
+                    </div>
+                    <div id="level-grid" class="level-grid-scroll">
+                        <!-- Populated dynamically by UI manager -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. How to Play Modal -->
+            <div id="how-to-play-menu" class="overlay-screen hidden">
+                <div class="menu-content medium">
+                    <div class="modal-header">
+                        <h2>MANUAL DE OPERAÇÃO</h2>
+                        <button class="cyber-btn btn-back-to-menu small">&lt;&lt; VOLTAR</button>
+                    </div>
+
+                    <div class="guide-cards">
+                        <div class="guide-card">
+                            <div class="guide-icon">🎮</div>
+                            <h3>CONTROLES BÁSICOS</h3>
+                            <p><strong>A / D</strong> ou <strong>Setas</strong>: Movimentação lateral rápida.</p>
+                            <p><strong>Espaço / W</strong>: Pulo responsivo com altura variável.</p>
+                            <p><strong>Esc</strong>: Pausa o jogo.</p>
+                        </div>
+
+                        <div class="guide-card highlight">
+                            <div class="guide-icon">⏳</div>
+                            <h3>MECÂNICA REWIND [R]</h3>
+                            <p>Segure a tecla <strong>R</strong> a qualquer momento para <strong>voltar no tempo até 5 segundos</strong>.</p>
+                            <p>A energia temporal é consumida durante o rewind e regenera automaticamente quando você solta a tecla.</p>
+                        </div>
+
+                        <div class="guide-card">
+                            <div class="guide-icon">🧩</div>
+                            <h3>PUZZLES & OBJETOS</h3>
+                            <p><strong>Caixas</strong>: Empurre-as para bloquear lasers ou acionar botões.</p>
+                            <p><strong>Botões de Pressão</strong>: Mantêm portas abertas enquanto ativados.</p>
+                            <p><strong>Plataformas Móveis & Holográficas</strong>: Requerem precisão e sincronismo temporal.</p>
+                        </div>
+
+                        <div class="guide-card danger">
+                            <div class="guide-icon">⚠️</div>
+                            <h3>AMEAÇAS & DRONES</h3>
+                            <p><strong>Espinhos & Lasers</strong>: Fatais ao contato! Use o rewind para desfazer saltos errados.</p>
+                            <p><strong>Drones de Segurança</strong>: Patrulham rotas fixas.</p>
+                            <p><strong>Drones Perseguidores</strong>: Caçam ativamente o robô.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Options Modal -->
+            <div id="options-menu" class="overlay-screen hidden">
+                <div class="menu-content small-box">
+                    <div class="modal-header">
+                        <h2>CONFIGURAÇÕES</h2>
+                        <button class="cyber-btn btn-back-to-menu small">&lt;&lt; VOLTAR</button>
+                    </div>
+
+                    <div class="options-body">
+                        <div class="option-row">
+                            <span>ÁUDIO</span>
+                            <span class="tag-status">DESATIVADO (POR DESIGN)</span>
+                        </div>
+                        <div class="option-row">
+                            <span>SISTEMA DE SALVAMENTO</span>
+                            <span class="tag-status">LOCAL STORAGE ATIVO</span>
+                        </div>
+
+                        <div class="danger-zone">
+                            <p>Deseja zerar todo o progresso de fases e estrelas?</p>
+                            <button id="btn-reset-progress" class="cyber-btn danger-btn">APAGAR DADOS SALVOS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Pause Menu -->
+            <div id="pause-menu" class="overlay-screen modal-dim hidden">
+                <div class="modal-box">
+                    <h2 class="pause-title">PAUSA DO SISTEMA</h2>
+                    <p class="pause-sub">FLUXO TEMPORAL SUSPENSO</p>
+                    <div class="modal-actions">
+                        <button id="btn-pause-resume" class="cyber-btn primary">CONTINUAR [ESC]</button>
+                        <button id="btn-pause-restart" class="cyber-btn">REINICIAR SETOR</button>
+                        <button id="btn-pause-level-select" class="cyber-btn">SELEÇÃO DE SETORES</button>
+                        <button id="btn-pause-menu" class="cyber-btn">MENU PRINCIPAL</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Game Over Menu -->
+            <div id="game-over-menu" class="overlay-screen modal-dim hidden">
+                <div class="modal-box danger-box">
+                    <h2 class="danger-title">ENERGIA CRÍTICA // DESCONEXÃO</h2>
+                    <p class="danger-sub">Todas as 3 cargas do núcleo foram perdidas.</p>
+                    <div class="modal-actions">
+                        <button id="btn-go-retry" class="cyber-btn primary">TENTAR NOVAMENTE</button>
+                        <button id="btn-go-level-select" class="cyber-btn">SELEÇÃO DE SETORES</button>
+                        <button id="btn-go-menu" class="cyber-btn">MENU PRINCIPAL</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Level Complete Menu -->
+            <div id="level-complete-menu" class="overlay-screen modal-dim hidden">
+                <div class="modal-box victory-box">
+                    <h2 id="lc-sector-title" class="victory-title">SETOR CONCLUÍDO!</h2>
+                    <p class="victory-sub">DADOS TEMPORAIS ESTABILIZADOS</p>
+
+                    <!-- Stars display -->
+                    <div class="stars-row">
+                        <div id="lc-star-1" class="star-badge">★<span class="star-label">SETOR</span></div>
+                        <div id="lc-star-2" class="star-badge">★<span class="star-label">TEMPO</span></div>
+                        <div id="lc-star-3" class="star-badge">★<span class="star-label">FRAGMENTOS</span></div>
+                    </div>
+
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-name">TEMPO FINAL:</span>
+                            <span id="lc-time" class="stat-val">--</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-name">FRAGMENTOS:</span>
+                            <span id="lc-fragments" class="stat-val">0 / 3</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="btn-lc-next" class="cyber-btn primary">PRÓXIMA FASE &gt;&gt;</button>
+                        <button id="btn-lc-retry" class="cyber-btn">JOGAR NOVAMENTE</button>
+                        <button id="btn-lc-menu" class="cyber-btn">MENU PRINCIPAL</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Game Cleared (Final Victory) Menu -->
+            <div id="game-cleared-menu" class="overlay-screen modal-dim hidden">
+                <div class="modal-box victory-box grand-victory">
+                    <h1 class="grand-title">PARADOXO RESOLVIDO!</h1>
+                    <p class="grand-sub">O pequeno robô sincronizou o continuum e escapou com sucesso do complexo laboratorial!</p>
+
+                    <div class="final-scores">
+                        <div class="final-score-card">
+                            <span class="score-title">ESTRELAS TOTAIS</span>
+                            <span id="gc-total-stars" class="score-num">-- / 45</span>
+                        </div>
+                        <div class="final-score-card">
+                            <span class="score-title">FRAGMENTOS COLETADOS</span>
+                            <span id="gc-total-fragments" class="score-num">-- / 45</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="btn-gc-menu" class="cyber-btn primary">VOLTAR AO MENU PRINCIPAL</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts in dependency order -->
+    <script src="js/constants.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/objects.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/rewind.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
